@@ -8,6 +8,7 @@ import SiteFooter from '../components/SiteFooter'
 import { useEffect, useState } from 'react'
 import { listJourneyCourses } from '../content/tracks/journey'
 import { journeyProgressStorageKey } from '../lib/journeyProgress'
+import { getPrisma } from '../lib/prisma'
 
 interface ProfileProps {
   joinedAt?: string | null
@@ -100,6 +101,13 @@ export default function Profile({ joinedAt }: ProfileProps) {
   const [profileForm, setProfileForm] = useState({ name: '', level: 'Bronze', image: '' })
   const [savingProfile, setSavingProfile] = useState(false)
   const [profileMessage, setProfileMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+  const formattedJoinedAt = joinedAt
+    ? new Date(joinedAt).toLocaleDateString(undefined, {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+      })
+    : null
 
   useEffect(() => {
     const handleStorageUpdate = () => {
@@ -236,10 +244,10 @@ export default function Profile({ joinedAt }: ProfileProps) {
                   {progressSummary.completedTasks} / {progressSummary.totalTasks}
                 </span>
               </p>
-              {joinedAt ? (
+              {formattedJoinedAt ? (
                 <p>
                   <span className="text-secondary">Member since:</span>{' '}
-                  <span className="font-semibold text-heading">{joinedAt}</span>
+                  <span className="font-semibold text-heading">{formattedJoinedAt}</span>
                 </p>
               ) : null}
             </div>
@@ -402,10 +410,28 @@ export const getServerSideProps: GetServerSideProps<ProfileProps> = async (conte
     }
   }
 
+  let joinedAt: string | null = null
+
+  try {
+    const prisma = getPrisma()
+    if (prisma && session.user?.id) {
+      const userRecord = await prisma.user.findUnique({
+        where: { id: session.user.id },
+        select: { createdAt: true },
+      })
+
+      if (userRecord?.createdAt) {
+        joinedAt = userRecord.createdAt.toISOString()
+      }
+    }
+  } catch (error) {
+    console.warn('Failed to load user profile metadata', error)
+  }
+
   return {
     props: {
       session,
-      joinedAt: session.user?.createdAt ?? null,
+      joinedAt,
     },
   }
 }

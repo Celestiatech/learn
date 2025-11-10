@@ -2,6 +2,11 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '../../lib/authOptions'
 import { getPrisma } from '../../lib/prisma'
+type LessonProgressRecord = {
+  trackId: string
+  lessonSlug: string
+  completedAt: Date | null
+}
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const session = await getServerSession(req, res, authOptions)
@@ -60,7 +65,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         xpEarned: item.xpEarned,
       }))
 
-      const progress = lessonProgress.map((item) => ({
+      const progress = lessonProgress.map((item: LessonProgressRecord) => ({
         track: item.trackId,
         lesson: item.lessonSlug,
         completed: true,
