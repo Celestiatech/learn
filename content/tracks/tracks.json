@@ -1,0 +1,28 @@
+{
+  "html": {
+    "title": "HTML",
+    "slug": "html",
+    "lessons": [
+      "intro",
+      "css-basics",
+      "js-console",
+      "dom-manipulation",
+      "mini-project-todo"
+    ]
+  },
+  "css": {
+    "title": "CSS",
+    "slug": "css",
+    "lessons": [
+      "css-basics"
+    ]
+  },
+  "javascript": {
+    "title": "JavaScript",
+    "slug": "javascript",
+    "lessons": [
+      "js-console",
+      "dom-manipulation"
+    ]
+  }
+}

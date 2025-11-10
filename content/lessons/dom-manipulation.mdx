@@ -1,0 +1,29 @@
+---
+title: "DOM Manipulation — Change the page with JavaScript"
+---
+
+# DOM Manipulation
+
+Use JavaScript to query and update the page DOM. This lesson shows how to select elements and change text and styles.
+
+```html
+<!-- Starter HTML for the playground -->
+<div id="app">
+  <h1 id="title">Hello!</h1>
+  <button id="change">Change text</button>
+</div>
+
+<script>
+  const btn = document.getElementById('change')
+  btn.addEventListener('click', ()=>{
+    document.getElementById('title').innerText = 'You changed me!'
+  })
+</script>
+```
+
+### Micro-challenge
+
+Make the button change the background color of `#app` when clicked.
+
+---
+Badge: DOM Tinkerer

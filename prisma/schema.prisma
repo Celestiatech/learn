@@ -1,0 +1,173 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String           @id @default(cuid())
+  name            String?
+  email           String?          @unique
+  emailVerified   DateTime?
+  image           String?
+  password        String?
+  xp              Int              @default(0)
+  level           String           @default("Bronze")
+  streakCount     Int              @default(0)
+  lastActive      DateTime?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  accounts        Account[]
+  sessions        Session[]
+  taskProgress    TaskProgress[]
+  lessonProgress  LessonProgress[]
+  badgeAwards     BadgeAward[]
+  subscriptions   Subscription[]
+  certificates    Certificate[]
+  preferences     UserPreference[]
+}
+
+model Account {
+  id                 String  @id @default(cuid())
+  userId             String
+  type               String
+  provider           String
+  providerAccountId  String
+  refresh_token      String?
+  access_token       String?
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String?
+  session_state      String?
+  user               User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+  @@unique([identifier, token])
+}
+
+model Course {
+  id          String    @id @default(cuid())
+  title       String
+  slug        String    @unique
+  level       String
+  description String?
+  premium     Boolean   @default(false)
+  chapters    Chapter[]
+  certificates Certificate[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Chapter {
+  id        String   @id @default(cuid())
+  title     String
+  order     Int
+  storyText String
+  courseId  String
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  tasks     Task[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Task {
+  id             String   @id @default(cuid())
+  title          String
+  order          Int
+  prompt         String
+  goal           String
+  hint           String?
+  difficulty     String
+  xpReward       Int      @default(10)
+  premium        Boolean  @default(false)
+  chapterId      String
+  chapter        Chapter  @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  starterCode    String?
+  testDefinition Json?
+  expectedOutput Json?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  progress       TaskProgress[]
+}
+
+model TaskProgress {
+  id          String    @id @default(cuid())
+  userId      String
+  taskId      String
+  status      String    @default("pending")
+  xpEarned    Int       @default(0)
+  completedAt DateTime?
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  task        Task      @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  @@unique([userId, taskId])
+}
+
+model LessonProgress {
+  id          String   @id @default(cuid())
+  userId      String
+  trackId     String
+  lessonSlug  String
+  completedAt DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, trackId, lessonSlug])
+}
+
+model UserPreference {
+  id        String   @id @default(cuid())
+  userId    String
+  key       String
+  value     Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, key])
+}
+
+model BadgeAward {
+  id        String   @id @default(cuid())
+  userId    String
+  badgeType String
+  awardedAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Subscription {
+  id               String   @id @default(cuid())
+  userId           String
+  provider         String
+  externalId       String   @unique
+  status           String
+  currentPeriodEnd DateTime?
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model Certificate {
+  id        String   @id @default(cuid())
+  userId    String
+  courseId  String
+  issuedAt  DateTime @default(now())
+  url       String?
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+}

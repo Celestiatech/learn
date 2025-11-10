@@ -1,0 +1,39 @@
+---
+title: "Mini Project: Todo App — Build a simple app"
+---
+
+# Mini Project: Todo App
+
+Combine HTML, CSS and JavaScript to build a small todo app. This project ties together what you've learned so far.
+
+## Starter
+
+```html
+<div id="app">
+  <h1>Todo</h1>
+  <input id="task" placeholder="Write a task" />
+  <button id="add">Add</button>
+  <ul id="list"></ul>
+</div>
+
+<script>
+  const add = document.getElementById('add')
+  add.addEventListener('click', ()=>{
+    const v = document.getElementById('task').value
+    const li = document.createElement('li')
+    li.innerText = v
+    document.getElementById('list').appendChild(li)
+  })
+</script>
+```
+
+### Goals
+
+- Add items
+- Mark items complete (strike-through)
+- Remove items
+
+This project should take 30–60 minutes. Share your final page or save it as a gist.
+
+---
+Badge: First Project
